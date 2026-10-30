@@ -1130,6 +1130,189 @@
         }
       ]
     },
+    "Blast Machine Packages": {
+      "fields": {
+        "Capacity": {
+          "order": 1,
+          "options": [
+            {
+              "code": "20",
+              "name": "20 LTR",
+              "tally_name": "20",
+              "description": "20 Ltr",
+              "order": 1
+            },
+            {
+              "code": "30",
+              "name": "30 LTR",
+              "tally_name": "30",
+              "description": "30 Ltr",
+              "order": 2
+            },
+            {
+              "code": "50",
+              "name": "50 LTR",
+              "tally_name": "50",
+              "description": "50 Ltr",
+              "order": 3
+            },
+            {
+              "code": "100",
+              "name": "100 LTR",
+              "tally_name": "100",
+              "description": "100 Ltr",
+              "order": 4
+            },
+            {
+              "code": "200",
+              "name": "200 LTR",
+              "tally_name": "200",
+              "description": "200 Ltr",
+              "order": 5
+            },
+            {
+              "code": "300",
+              "name": "300 LTR",
+              "tally_name": "300",
+              "description": "300 Ltr",
+              "order": 6
+            },
+            {
+              "code": "500",
+              "name": "500 LTR",
+              "tally_name": "500",
+              "description": "500 Ltr",
+              "order": 7
+            },
+            {
+              "code": "2500",
+              "name": "2500 LTR",
+              "tally_name": "2500",
+              "description": "2500 Ltr",
+              "order": 8
+            }
+          ]
+        },
+        "Certification": {
+          "order": 2,
+          "options": [
+            {
+              "code": "S",
+              "name": "Standard ",
+              "tally_name": "S",
+              "description": "Standard",
+              "order": 1
+            },
+            {
+              "code": "T",
+              "name": "Third Party Tested",
+              "tally_name": "T",
+              "description": "Third Party Tested",
+              "order": 2
+            },
+            {
+              "code": "U",
+              "name": "ASME Certified",
+              "tally_name": "U",
+              "description": "ASME Certified",
+              "order": 3
+            },
+            {
+              "code": "P",
+              "name": "PED Certified",
+              "tally_name": "P",
+              "description": "PED Certified",
+              "order": 4
+            },
+            {
+              "code": "D",
+              "name": "Dosh",
+              "tally_name": "D",
+              "description": "Dosh",
+              "order": 5
+            }
+          ]
+        },
+        "Helmet": {
+          "order": 3,
+          "options": [
+            {
+              "code": "AS",
+              "name": "Astro",
+              "tally_name": "AS",
+              "description": "Astro Helmet",
+              "order": 1
+            },
+            {
+              "code": "T6",
+              "name": "Testa",
+              "tally_name": "T6",
+              "description": "Testa Helmet",
+              "order": 2
+            }
+          ]
+        },
+        "Package": {
+          "order": 4,
+          "options": [
+            {
+              "code": "PK2A",
+              "name": "Package 2A",
+              "tally_name": "PK2A",
+              "description": "Package 2A",
+              "order": 1,
+              "contents": "Blast Machine (incl. Screen + Cover)\nRemote Control Valve\nMoisture Separator\nAbrasive Metering Valve\nThreaded Pot Coupling\nFour-Jaw Inlet Coupling\nDead Man Handle\nTwin Hose (20m) + Fittings\nBlast Hose 1-1/4\" (20m)\nBlast Hose Coupling\nNozzle Holder Nylon (NHP2)\nNozzle #5 (8 mm) / #6 (9.5 mm)\nWhip Check\nR Clip (only for cast iron hose coupling)"
+            },
+            {
+              "code": "PK2B",
+              "name": "Package 2B",
+              "tally_name": "PK2B",
+              "description": "Package 2B",
+              "order": 2,
+              "contents": "Blast Machine (incl. Screen + Cover)\nRemote Control Valve\nMoisture Separator\nAbrasive Metering Valve\nThreaded Pot Coupling\nFour-Jaw Inlet Coupling\nDead Man Handle\nTwin Hose (40m) + Fittings\nBlast Hose 1-1/4\" (40m)\nBlast Hose Coupling\nNozzle Holder Nylon (NHP2)\nNozzle #5 (8 mm) / #6 (9.5 mm)\nWhip Check\nR Clip (only for cast iron hose coupling)"
+            },
+            {
+              "code": "PK3A",
+              "name": "Package 3A",
+              "tally_name": "PK3A",
+              "description": "Package 3A",
+              "order": 3,
+              "contents": "Blast Machine (incl. Screen + Cover)\nRemote Control Valve\nMoisture Separator\nAbrasive Metering Valve\nThreaded Pot Coupling\nFour-Jaw Inlet Coupling\nDead Man Handle\nTwin Hose (20m) + Fittings\nBlast Hose 1-1/4\" (20m)\nBlast Hose Coupling\nNozzle Holder Nylon (NHP2)\nNozzle #5 (8 mm) / #6 (9.5 mm)\nWhip Check\nR Clip (only for cast iron hose coupling)\n+ Blast Gloves\n+ Blast Suit\n+ Blast Helmet"
+            },
+            {
+              "code": "PK3B",
+              "name": "Package 3B",
+              "tally_name": "PK3B",
+              "description": "Package 3B",
+              "order": 4,
+              "contents": "Blast Machine (incl. Screen + Cover)\nRemote Control Valve\nMoisture Separator\nAbrasive Metering Valve\nThreaded Pot Coupling\nFour-Jaw Inlet Coupling\nDead Man Handle\nTwin Hose (40m) + Fittings\nBlast Hose 1-1/4\" (40m)\nBlast Hose Coupling\nNozzle Holder Nylon (NHP2)\nNozzle #5 (8 mm) / #6 (9.5 mm)\nWhip Check\nR Clip (only for cast iron hose coupling)\n+ Blast Gloves\n+ Blast Suit\n+ Blast Helmet"
+            },
+            {
+              "code": "PK4A",
+              "name": "Package 4A",
+              "tally_name": "PK4A",
+              "description": "Package 4A",
+              "order": 5,
+              "contents": "Blast Machine (incl. Screen + Cover)\nRemote Control Valve\nMoisture Separator\nAbrasive Metering Valve\nThreaded Pot Coupling\nFour-Jaw Inlet Coupling\nDead Man Handle\nTwin Hose (20m) + Fittings\nBlast Hose 1-1/4\" (20m)\nBlast Hose Coupling\nNozzle Holder Nylon (NHP2)\nNozzle #5 (8 mm) / #6 (9.5 mm)\nWhip Check\nR Clip (only for cast iron hose coupling)\nBlast Gloves\nBlast Suit\nBlast Helmet\n+ Breathing Air Filter Single BL 20\n+ Breathing Hose 3/8\" (20m) + Fittings"
+            },
+            {
+              "code": "PK4B",
+              "name": "Package 4B",
+              "tally_name": "PK4B",
+              "description": "Package 4B",
+              "order": 6,
+              "contents": "Blast Machine (incl. Screen + Cover)\nRemote Control Valve\nMoisture Separator\nAbrasive Metering Valve\nThreaded Pot Coupling\nFour-Jaw Inlet Coupling\nDead Man Handle\nTwin Hose (40m) + Fittings\nBlast Hose 1-1/4\" (40m)\nBlast Hose Coupling\nNozzle Holder Nylon (NHP2)\nNozzle #5 (8 mm) / #6 (9.5 mm)\nWhip Check\nR Clip (only for cast iron hose coupling)\nBlast Gloves\nBlast Suit\nBlast Helmet\n+ Breathing Air Filter Single BL 20\n+ Breathing Hose 3/8\" (40m) + Fittings"
+            }
+          ]
+        }
+      },
+      "extras": [],
+      "settings": {
+        "separator": "",
+        "extras_mode": "Multiple",
+        "use_short_codes": false
+      }
+    },
     "Air Receiver": {
       "settings": {
         "extras_mode": "Multiple",
@@ -11037,5 +11220,9 @@
     "BLD": 2,
     "JM": 1,
     "AR": 5
-  }
+  },
+  "blast_machine_packages_seeded": true,
+  "package_details_seeded": true,
+  "package_details_v2_seeded": true,
+  "package_pk_codes_seeded": true
 }

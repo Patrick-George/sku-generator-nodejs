@@ -40,7 +40,9 @@
               <% } %>
             <% } %>
           </label>
+          <%- include('partials/contents', { lines: w.contentsLines }) %>
         <% }) %>
+        <% if (model.showExtras) { %>
         <p class="subhead">Extras</p>
         <% if (!model.visibleExtras.length) { %>
           <div class="banner info">No extras available for this selection.</div>
@@ -58,6 +60,7 @@
             <% }) %>
           </div>
         <% } %>
+        <% } %>
       </section>
       <section class="panel output">
         <% if (model.sku) { %>
@@ -66,14 +69,16 @@
               <span class="k">Generated SKU</span>
               <button type="button" class="copy-card sku-card" data-copy="<%= model.sku %>"><span class="text"><%= model.sku %></span><small>Click to copy</small></button>
             </div>
-            <div>
-              <span class="k">Short Code</span>
-              <% if (model.existingShortCode) { %>
-                <button type="button" class="copy-card code-card" data-copy="<%= model.existingShortCode %>"><span class="text"><%= model.existingShortCode %></span><small>Click to copy</small></button>
-              <% } else { %>
-                <div class="pending">Assigned when you save to history</div>
-              <% } %>
-            </div>
+            <% if (model.useShortCodes) { %>
+              <div>
+                <span class="k">Short Code</span>
+                <% if (model.existingShortCode) { %>
+                  <button type="button" class="copy-card code-card" data-copy="<%= model.existingShortCode %>"><span class="text"><%= model.existingShortCode %></span><small>Click to copy</small></button>
+                <% } else { %>
+                  <div class="pending">Assigned when you save to history</div>
+                <% } %>
+              </div>
+            <% } %>
             <% if (model.showItemName) { %>
               <div>
                 <span class="k">Item Name</span>

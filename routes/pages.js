@@ -12,7 +12,9 @@ function noticeFromQuery(query) {
     return { type: "warn", text: `This configuration already has short code ${query.reused}. Reusing it — no new code was created.` };
   }
   if (query.saved === "1") {
-    return { type: "ok", text: query.code ? `Saved ${query.code}` : "Saved to history." };
+    if (query.code) return { type: "ok", text: `Saved ${query.code}` };
+    if (query.sku) return { type: "ok", text: `Saved ${query.sku}` };
+    return { type: "ok", text: "Saved to history." };
   }
   return null;
 }
@@ -20,7 +22,7 @@ function noticeFromQuery(query) {
 router.get("/", (req, res) => {
   const data = storage.load();
   const model = sku.resolveForm(data.inventory, req.query);
-  if (model) model.existingShortCode = sku.lookupShortCode(model.signature, data.short_codes);
+  if (model && model.useShortCodes) model.existingShortCode = sku.lookupShortCode(model.signature, data.short_codes);
   res.render("home", { title: "SKU Generator", page: "home", model, notice: noticeFromQuery(req.query) });
 });
 
@@ -28,7 +30,7 @@ router.post("/save", (req, res) => {
   const data = storage.load();
   const model = sku.resolveForm(data.inventory, req.body);
   if (!model || !model.sku) return res.redirect("/");
-  const existing = sku.lookupShortCode(model.signature, data.short_codes);
+  const existing = model.useShortCodes ? sku.lookupShortCode(model.signature, data.short_codes) : null;
   const machine = model.sel[model.mfName] || {};
   const result = sku.addToSkuHistory(storage, {
     sku: model.sku,
@@ -41,8 +43,8 @@ router.post("/save", (req, res) => {
     mappedName: model.mappedName,
     mappedDesc: model.mappedDesc,
     breakdownItems: model.allBreakdown,
-    signature: model.signature,
-    prefix: model.prefix,
+    signature: model.useShortCodes ? model.signature : null,
+    prefix: model.useShortCodes ? model.prefix : null,
   });
   const params = new URLSearchParams();
   params.set("category", model.category);
@@ -56,6 +58,7 @@ router.post("/save", (req, res) => {
   params.set("saved", "1");
   if (existing) params.set("reused", existing);
   else if (result && result.shortCode) params.set("code", result.shortCode);
+  else params.set("sku", model.sku);
   res.redirect(`/?${params.toString()}`);
 });
 

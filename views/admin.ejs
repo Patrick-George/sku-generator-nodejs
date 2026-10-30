@@ -107,6 +107,53 @@
       <% } %>
     <% } %>
 
+  <% } else if (section === 'notes') { %>
+    <p class="muted">Shown under the selected option in the configurator. Not included in the item name or description. One item per line.</p>
+    <% if (!noteFields.length) { %>
+      <div class="banner info">This category has no dropdown fields yet.</div>
+    <% } else { %>
+      <form method="get" action="/admin">
+        <input type="hidden" name="cat" value="<%= cat %>">
+        <input type="hidden" name="section" value="notes">
+        <label class="field"><span class="k">Field</span>
+          <select name="field" onchange="this.form.submit()">
+            <% noteFields.forEach((name) => { %><option <%= name === field ? 'selected' : '' %>><%= name %></option><% }) %>
+          </select>
+        </label>
+      </form>
+      <% if (!noteOptions.length) { %>
+        <div class="banner info">This field has no options yet.</div>
+      <% } else { %>
+        <% if (noteChoices.length) { %>
+          <form method="get" action="/admin">
+            <input type="hidden" name="cat" value="<%= cat %>">
+            <input type="hidden" name="section" value="notes">
+            <input type="hidden" name="field" value="<%= field %>">
+            <label class="field"><span class="k">Option</span>
+              <select name="option" onchange="this.form.submit()">
+                <% noteChoices.forEach((opt) => { %>
+                  <option value="<%= opt.code %>" <%= noteOptions[0] && noteOptions[0].code === opt.code ? 'selected' : '' %>><%= opt.label %></option>
+                <% }) %>
+              </select>
+            </label>
+          </form>
+        <% } %>
+        <form method="post" action="/admin/notes">
+          <input type="hidden" name="cat" value="<%= cat %>">
+          <input type="hidden" name="field" value="<%= field %>">
+          <% if (noteChoices.length && noteOptions[0]) { %><input type="hidden" name="option" value="<%= noteOptions[0].code %>"><% } %>
+          <% noteOptions.forEach((opt) => { %>
+            <label class="field">
+              <span class="k"><%= opt.code %> — <%= opt.name %></span>
+              <input type="hidden" name="code" value="<%= opt.code %>">
+              <textarea class="note" name="contents"><%= opt.contents || '' %></textarea>
+            </label>
+          <% }) %>
+          <p><button class="primary" type="submit">Save notes</button></p>
+        </form>
+      <% } %>
+    <% } %>
+
   <% } else if (section === 'extras') { %>
     <p class="muted"><%= extras.length %> extras.</p>
     <form method="post" action="/admin/extras">
@@ -139,11 +186,15 @@
       <span class="k">Extras selection</span>
       <label><input style="width:auto" type="radio" name="extras_mode" value="Single" <%= settings.extras_mode === 'Single' ? 'checked' : '' %>> Single — one extra, shown as radio buttons</label>
       <label><input style="width:auto" type="radio" name="extras_mode" value="Multiple" <%= settings.extras_mode !== 'Single' ? 'checked' : '' %>> Multiple — any extras, shown as checkboxes</label>
+      <p class="k">Short codes</p>
+      <label><input style="width:auto" type="checkbox" name="use_short_codes" value="1" <%= settings.use_short_codes === false ? '' : 'checked' %>> Assign short codes</label>
+      <p class="muted">When off, Save to History stores the SKU only. Blast Machine Packages leaves this off because the code is already short.</p>
       <p><button class="primary" type="submit">Save settings</button></p>
     </form>
     <div class="banner info">
       <p><span class="k">Separator</span><%= settings.separator ? settings.separator : 'None' %></p>
       <p><span class="k">Extras mode</span><%= settings.extras_mode === 'Single' ? 'Single' : 'Multiple' %></p>
+      <p><span class="k">Short codes</span><%= settings.use_short_codes === false ? 'Off' : 'On' %></p>
       <p><%= settings.extras_mode === 'Single' ? 'Users see radio buttons and can select one extra.' : 'Users see checkboxes and can select several extras.' %></p>
     </div>
 

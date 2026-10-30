@@ -7,6 +7,7 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 const SECTIONS = [
   ["fields", "Fields"],
+  ["notes", "Selector Info"],
   ["extras", "Extras"],
   ["settings", "Settings"],
   ["matrix", "Export Matrix"],
@@ -93,6 +94,9 @@ router.get("/", (req, res) => {
     otherFields: [],
     optionGroups: [],
     extraMaps: [],
+    noteFields: [],
+    noteOptions: [],
+    noteChoices: [],
     hasX: false,
     fieldData: null,
     importPreview: req.session.pendingImport
@@ -120,6 +124,20 @@ router.get("/", (req, res) => {
     const plan = sku.matrixFieldPlan(catData);
     const preview = sku.iterateMatrix(catData, cat, 20);
     vm.matrix = { total: plan.total, headers: ["SKU", ...plan.names], preview: preview.rows };
+    vm.noteFields = vm.fieldOrder.filter((name) => {
+      const field = fields[name];
+      return field && !sku.isTextField(field) && (field.options || []).some((opt) => opt && opt.type !== "text" && String(opt.code || "").trim());
+    });
+    if (section === "notes" && !req.query.field && vm.noteFields.includes("Package")) vm.field = "Package";
+    else if (section === "notes" && !vm.noteFields.includes(vm.field)) vm.field = vm.noteFields[0] || "";
+    const noteSource = vm.field && fields[vm.field] ? fields[vm.field].options || [] : [];
+    const noteOpts = noteSource.filter((opt) => opt && opt.type !== "text" && String(opt.code || "").trim());
+    vm.noteChoices = noteOpts.length > 8
+      ? noteOpts.map((opt) => ({ code: opt.code, label: `${opt.code} - ${opt.name}` }))
+      : [];
+    vm.noteOptions = vm.noteChoices.length
+      ? [noteOpts.find((opt) => opt.code === req.query.option) || noteOpts[0]].filter(Boolean)
+      : noteOpts;
     vm.machineField = sku.getMachineField(catData);
     const machineOpts = ((fields[vm.machineField] || {}).options || []).filter((opt) => opt.code);
     vm.machines = machineOpts;
@@ -301,10 +319,33 @@ router.post("/settings", (req, res) => {
   const settings = found.catData.settings || {};
   settings.separator = req.body.separator == null ? "" : String(req.body.separator).slice(0, 5);
   settings.extras_mode = req.body.extras_mode === "Single" ? "Single" : "Multiple";
+  const shortFlag = req.body.use_short_codes;
+  settings.use_short_codes = shortFlag === "1" || (Array.isArray(shortFlag) && shortFlag.includes("1"));
   found.catData.settings = settings;
   storage.save(found.data);
   req.session.flash = { type: "ok", text: "Settings saved." };
   res.redirect(back(found.cat, "settings"));
+});
+
+router.post("/notes", (req, res) => {
+  const found = categoryOrRedirect(req, res);
+  if (!found) return;
+  sku.normalizeFields(found.catData);
+  const field = found.catData.fields[req.body.field];
+  if (field && !sku.isTextField(field)) {
+    const codes = list(req.body.code);
+    const contents = list(req.body.contents);
+    const byCode = new Map();
+    codes.forEach((code, index) => {
+      byCode.set(String(code), contents[index] == null ? "" : String(contents[index]));
+    });
+    for (const opt of field.options || []) {
+      if (byCode.has(String(opt.code))) opt.contents = byCode.get(String(opt.code));
+    }
+    storage.save(found.data);
+    req.session.flash = { type: "ok", text: "Selector notes saved." };
+  }
+  res.redirect(back(found.cat, "notes", { field: req.body.field, option: req.body.option || "" }));
 });
 
 router.post("/machine-field", (req, res) => {

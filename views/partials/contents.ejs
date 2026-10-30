@@ -1,0 +1,12 @@
+<% if (lines && lines.length) { %>
+  <div class="contents-note">
+    <div class="contents-note-label">Contains</div>
+    <% if (lines.length > 1) { %>
+      <ul class="contents-note-list">
+        <% lines.forEach((line) => { %><li><%= line %></li><% }) %>
+      </ul>
+    <% } else { %>
+      <div class="contents-note-body"><%= lines[0] %></div>
+    <% } %>
+  </div>
+<% } %>

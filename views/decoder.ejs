@@ -42,6 +42,7 @@
     <h3>Component breakdown</h3>
     <% best.parts.forEach((part) => { %>
       <div class="breakdown-row"><span style="min-width:140px"><%= part.field %></span><span class="chip"><%= part.code %></span> <%= part.name %></div>
+      <%- include('partials/contents', { lines: part.contentsLines }) %>
     <% }) %>
     <% if (best.extras && best.extras.length) { %>
       <h3>Extras</h3>
