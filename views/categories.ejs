@@ -1,15 +1,17 @@
 <%- include('partials/head') %>
 <h1 class="page-title">Category - Item Pairs</h1>
 <p class="page-sub">Reference table of product categories and their item groups</p>
-<form method="get" action="/category-items">
+<form method="get" action="/category-items" class="pairs-filter">
   <input name="q" value="<%= q %>" placeholder="Filter by category or item">
 </form>
 <% if (!groups.length) { %>
   <div class="banner info">No matching pairs.</div>
 <% } %>
 <% groups.forEach(([cat, items]) => { %>
-  <details class="history" open>
-    <summary><strong><%= cat %></strong> <span class="muted">(<%= items.length %>)</span></summary>
+  <details class="pair" open>
+    <summary>
+      <span class="pair-title"><%= cat %> <span class="pair-count">(<%= items.length %>)</span></span>
+    </summary>
     <ul>
       <% items.forEach((item) => { %><li><%= item %></li><% }) %>
     </ul>
