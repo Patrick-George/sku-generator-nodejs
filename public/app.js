@@ -25,6 +25,10 @@ document.querySelectorAll("[data-add-row]").forEach((btn) => {
     const next = row ? row.cloneNode(true) : null;
     if (!next) return;
     next.querySelectorAll("input").forEach((input) => {
+      if (input.type === "checkbox") {
+        input.checked = false;
+        return;
+      }
       input.value = input.name === "order" ? String(body.querySelectorAll("tr").length + 1) : "";
     });
     body.appendChild(next);

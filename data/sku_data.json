@@ -1250,6 +1250,12 @@
               "description": "Testa Helmet",
               "order": 2
             }
+          ],
+          "machines": [
+            "PK3A",
+            "PK3B",
+            "PK4A",
+            "PK4B"
           ]
         },
         "Package": {
@@ -1310,7 +1316,8 @@
       "settings": {
         "separator": "",
         "extras_mode": "Multiple",
-        "use_short_codes": false
+        "use_short_codes": false,
+        "machine_field": "Package"
       }
     },
     "Air Receiver": {
@@ -11224,5 +11231,7 @@
   "blast_machine_packages_seeded": true,
   "package_details_seeded": true,
   "package_details_v2_seeded": true,
-  "package_pk_codes_seeded": true
+  "package_pk_codes_seeded": true,
+  "helmet_visibility_seeded": true,
+  "helmet_mapping_seeded": true
 }
