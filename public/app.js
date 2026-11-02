@@ -1,11 +1,40 @@
+function copyWithSelection(text) {
+  const area = document.createElement("textarea");
+  area.value = text;
+  area.setAttribute("readonly", "");
+  area.style.position = "fixed";
+  area.style.top = "0";
+  area.style.left = "0";
+  area.style.opacity = "0";
+  document.body.appendChild(area);
+  area.focus();
+  area.select();
+  area.setSelectionRange(0, area.value.length);
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch {
+    ok = false;
+  }
+  area.remove();
+  return ok;
+}
+
 document.querySelectorAll("[data-copy]").forEach((el) => {
   el.addEventListener("click", async () => {
     const text = el.getAttribute("data-copy") || "";
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {
-      return;
+    let copied = false;
+    const framed = window.self !== window.top;
+    if (!framed && navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        copied = true;
+      } catch {
+        copied = false;
+      }
     }
+    if (!copied) copied = copyWithSelection(text);
+    if (!copied) return;
     const note = el.querySelector("small");
     if (!note) return;
     const old = note.textContent;
