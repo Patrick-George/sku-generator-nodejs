@@ -6,7 +6,7 @@
   <title><%= title %> · Blastline SKU</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/app.css?v=8">
+  <link rel="stylesheet" href="/app.css?v=9">
 </head>
 <body>
 <div class="shell">
@@ -20,6 +20,7 @@
     <a class="item <%= page === 'history' ? 'active' : '' %>" href="/history">SKU History</a>
     <a class="item <%= page === 'decoder' ? 'active' : '' %>" href="/decoder">SKU Decoder</a>
     <a class="item <%= page === 'categories' ? 'active' : '' %>" href="/category-items">Category - Item Pairs</a>
+    <a class="item <%= page === 'books' ? 'active' : '' %>" href="/books-items">Books Items</a>
     <hr>
     <% if (admin) { %>
       <a class="item <%= page === 'admin' ? 'active' : '' %>" href="/admin">Settings</a>

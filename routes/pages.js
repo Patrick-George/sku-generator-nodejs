@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const storage = require("../lib/storage");
 const sku = require("../lib/sku");
+const books = require("../lib/books");
 const { historyWorkbook } = require("../lib/excel");
 
 const router = express.Router();
@@ -137,6 +138,80 @@ router.get("/decoder", (req, res) => {
     }
   }
   res.render("decoder", { title: "SKU Decoder", page: "decoder", q, shortRec, best, others, itemName, itemDesc, matchedCode });
+});
+
+function booksQuery(req) {
+  return {
+    q: req.query.q || "",
+    status: req.query.status || "all",
+    page: req.query.page || 1,
+  };
+}
+
+function booksInfo() {
+  const info = books.meta() || {};
+  const taken = info.taken_at || "";
+  const [year, month, day] = taken.split("-");
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const takenAt = year && month && day ? `${Number(day)} ${months[Number(month) - 1]} ${year}` : taken;
+  return {
+    organization: info.organization || "Blastline India Private Limited",
+    takenAt: takenAt || "17 Nov 2026",
+  };
+}
+
+router.get("/books-items/suggest", (req, res) => {
+  const status = req.query.status || "all";
+  const q = req.query.q || "";
+  if (!String(q).trim()) return res.json({ rows: [] });
+  const rows = books.suggest(q, status).map((row) => ({
+    item_id: row.item_id,
+    name: row.name,
+    sku: row.sku,
+    part_number: row.part_number,
+    rate: books.formatValue("rate", row.rate),
+    status: row.status,
+  }));
+  res.json({ rows });
+});
+
+router.get("/books-items/search", (req, res) => {
+  const result = books.search(booksQuery(req));
+  res.json({
+    ...result,
+    rows: result.rows.map((row) => ({
+      ...row,
+      rate_label: books.formatValue("rate", row.rate),
+    })),
+  });
+});
+
+router.get("/books-items/:id", (req, res) => {
+  const item = books.getItem(req.params.id);
+  if (!item) return res.status(404).send("Item not found.");
+  res.render("book-item", {
+    title: item.name,
+    page: "books",
+    item,
+    summary: books.summaryOf(item),
+    customFields: books.customFieldsOf(item.raw),
+    locations: books.locationsOf(item.raw),
+    extra: books.extraFields(item.raw),
+    raw: JSON.stringify(item.raw, null, 2),
+  });
+});
+
+router.get("/books-items", (req, res) => {
+  const result = books.search(booksQuery(req));
+  res.render("books", {
+    title: "Books Items",
+    page: "books",
+    ready: result.ready,
+    info: booksInfo(),
+    counts: books.counts() || { total: 0, active: 0, inactive: 0 },
+    money: (value) => books.formatValue("rate", value),
+    ...result,
+  });
 });
 
 router.get("/category-items", (req, res) => {

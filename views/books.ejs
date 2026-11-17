@@ -1,0 +1,59 @@
+<%- include('partials/head') %>
+<h1 class="page-title">Books Items</h1>
+<p class="page-sub">Zoho Books backup for <%= info.organization %>. Taken <%= info.takenAt %>. This copy stays in the app after Books is closed.</p>
+<% if (!ready) { %>
+  <div class="banner info">The Books item backup is not loaded yet.</div>
+<% } else { %>
+  <form id="books-search" method="get" action="/books-items" class="filters">
+    <div class="suggest-wrap grow">
+      <input id="books-q" name="q" value="<%= q %>" placeholder="Search name, SKU, part number, or description" autocomplete="off" autofocus>
+      <div id="books-suggest" class="suggest" hidden></div>
+    </div>
+    <select name="status" id="books-status">
+      <option value="all" <%= status === 'all' ? 'selected' : '' %>>All (<%= counts.total %>)</option>
+      <option value="active" <%= status === 'active' ? 'selected' : '' %>>Active (<%= counts.active %>)</option>
+      <option value="inactive" <%= status === 'inactive' ? 'selected' : '' %>>Inactive (<%= counts.inactive %>)</option>
+    </select>
+    <button type="submit">Search</button>
+  </form>
+  <p class="muted" id="books-count">Showing <%= rows.length ? ((page - 1) * pageSize + 1) + '–' + ((page - 1) * pageSize + rows.length) : '0' %> of <%= total %><% if (q) { %> for “<%= q %>”<% } %></p>
+  <div class="books-table-wrap">
+    <table class="books-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>SKU</th>
+          <th>Part #</th>
+          <th>Selling price</th>
+          <th>Unit</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="books-rows">
+        <% if (!rows.length) { %>
+          <tr><td colspan="6">No items match this search.</td></tr>
+        <% } %>
+        <% rows.forEach((row) => { %>
+          <tr>
+            <td><a href="/books-items/<%= row.item_id %>"><%= row.name %></a></td>
+            <td><%= row.sku || "—" %></td>
+            <td><%= row.part_number || "—" %></td>
+            <td><%= money(row.rate) %></td>
+            <td><%= row.unit || "—" %></td>
+            <td class="<%= row.status === 'inactive' ? 'muted' : '' %>"><%= row.status || "—" %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <div class="tools" id="books-pager" style="margin-top:14px">
+    <% if (page > 1) { %>
+      <a class="btn" href="/books-items?q=<%= encodeURIComponent(q) %>&status=<%= status %>&page=<%= page - 1 %>">Previous</a>
+    <% } %>
+    <span class="muted">Page <%= page %> of <%= pages %></span>
+    <% if (page < pages) { %>
+      <a class="btn" href="/books-items?q=<%= encodeURIComponent(q) %>&status=<%= status %>&page=<%= page + 1 %>">Next</a>
+    <% } %>
+  </div>
+<% } %>
+<%- include('partials/foot') %>
