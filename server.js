@@ -49,11 +49,17 @@ app.post("/logout", (req, res) => {
 app.use(pages);
 app.use("/admin", admin);
 
+const books = require("./lib/books");
+
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).send("Something went wrong.");
 });
 
-app.listen(port, () => {
-  console.log(`Blastline SKU Configurator listening on ${port}`);
+books.prepare().catch((err) => {
+  console.error("Books backup did not load.", err);
+}).finally(() => {
+  app.listen(port, () => {
+    console.log(`Blastline SKU Configurator listening on ${port}`);
+  });
 });
