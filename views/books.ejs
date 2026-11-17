@@ -2,7 +2,7 @@
 <h1 class="page-title">Books Items</h1>
 <p class="page-sub">Zoho Books backup for <%= info.organization %>. Taken <%= info.takenAt %>. This copy stays in the app after Books is closed.</p>
 <% if (!ready) { %>
-  <div class="banner info">The Books item backup is not loaded yet.</div>
+  <div class="banner err"><%= loadError || "The Books item backup is not loaded yet." %></div>
 <% } else { %>
   <form id="books-search" method="get" action="/books-items" class="filters">
     <div class="suggest-wrap grow">
