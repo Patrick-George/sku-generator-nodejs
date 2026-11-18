@@ -75,6 +75,7 @@ document.querySelectorAll("[data-catalog]").forEach((catalogForm) => {
   const pager = document.querySelector(`#${prefix}-pager`);
   let timer = 0;
   let active = -1;
+  let suggestOpen = false;
 
   function moneyCell(label) {
     return label || "—";
@@ -175,24 +176,35 @@ document.querySelectorAll("[data-catalog]").forEach((catalogForm) => {
       status: status.value,
       page: String(page || 1),
     });
+    const showSuggest = suggestOpen;
     const [list, hints] = await Promise.all([
       fetch(`${base}/search?${params}`).then((res) => res.json()),
-      input.value.trim()
+      showSuggest && input.value.trim()
         ? fetch(`${base}/suggest?q=${encodeURIComponent(input.value)}&status=${encodeURIComponent(status.value)}`).then((res) => res.json())
         : Promise.resolve({ rows: [] }),
     ]);
     renderRows(list);
-    renderSuggest(hints.rows || []);
+    if (showSuggest && suggestOpen) renderSuggest(hints.rows || []);
+    else {
+      suggest.replaceChildren();
+      suggest.hidden = true;
+      active = -1;
+    }
   }
 
   input.addEventListener("input", () => {
+    suggestOpen = true;
     clearTimeout(timer);
     timer = setTimeout(() => refresh(1), 80);
   });
   status.addEventListener("change", () => refresh(1));
   catalogForm.addEventListener("submit", (event) => {
     event.preventDefault();
+    clearTimeout(timer);
+    suggestOpen = false;
+    suggest.replaceChildren();
     suggest.hidden = true;
+    active = -1;
     refresh(1);
   });
   input.addEventListener("keydown", (event) => {
