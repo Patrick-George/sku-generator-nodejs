@@ -1,8 +1,13 @@
 const path = require("path");
+const { loadEnv } = require("./lib/env");
+
+loadEnv();
+
 const express = require("express");
 const session = require("express-session");
 const pages = require("./routes/pages");
 const admin = require("./routes/admin");
+const zoho = require("./routes/zoho");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -10,6 +15,7 @@ const port = process.env.PORT || 3000;
 app.set("trust proxy", 1);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+app.use("/zoho", zoho);
 app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(session({
@@ -50,15 +56,21 @@ app.use(pages);
 app.use("/admin", admin);
 
 const books = require("./lib/books");
+const erp = require("./lib/erp");
 
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).send("Something went wrong.");
 });
 
-books.prepare().catch((err) => {
-  console.error("Books backup did not load.", err);
-}).finally(() => {
+Promise.all([
+  books.prepare().catch((err) => {
+    console.error("Books backup did not load.", err);
+  }),
+  erp.prepare().catch((err) => {
+    console.error("ERP items did not load.", err);
+  }),
+]).finally(() => {
   app.listen(port, () => {
     console.log(`Blastline SKU Configurator listening on ${port}`);
   });

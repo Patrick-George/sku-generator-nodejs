@@ -4,6 +4,7 @@ const path = require("path");
 const storage = require("../lib/storage");
 const sku = require("../lib/sku");
 const books = require("../lib/books");
+const erp = require("../lib/erp");
 const { historyWorkbook } = require("../lib/excel");
 
 const router = express.Router();
@@ -203,14 +204,87 @@ router.get("/books-items/:id", (req, res) => {
 
 router.get("/books-items", (req, res) => {
   const result = books.search(booksQuery(req));
+  const { page: current, ...rest } = result;
   res.render("books", {
     title: "Books Items",
-    page: "books",
     ready: result.ready,
     info: booksInfo(),
     counts: books.counts() || { total: 0, active: 0, inactive: 0 },
     money: (value) => books.formatValue("rate", value),
+    ...rest,
+    current,
+    page: "books",
+  });
+});
+
+function catalogTakenAt(info, fallback) {
+  const taken = info.taken_at || "";
+  const [year, month, day] = taken.split("-");
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return year && month && day ? `${Number(day)} ${months[Number(month) - 1]} ${year}` : (taken || fallback);
+}
+
+function erpInfo() {
+  const info = erp.meta() || {};
+  return {
+    organization: info.organization || "Blastline India Private Limited",
+    takenAt: catalogTakenAt(info, "18 Nov 2026"),
+  };
+}
+
+router.get("/erp-items/suggest", (req, res) => {
+  const status = req.query.status || "all";
+  const q = req.query.q || "";
+  if (!String(q).trim()) return res.json({ rows: [] });
+  const rows = erp.suggest(q, status).map((row) => ({
+    item_id: row.item_id,
+    name: row.name,
+    sku: row.sku,
+    part_number: row.part_number,
+    rate: erp.formatValue("rate", row.rate),
+    status: row.status,
+  }));
+  res.json({ rows });
+});
+
+router.get("/erp-items/search", (req, res) => {
+  const result = erp.search(booksQuery(req));
+  res.json({
     ...result,
+    rows: result.rows.map((row) => ({
+      ...row,
+      rate_label: erp.formatValue("rate", row.rate),
+    })),
+  });
+});
+
+router.get("/erp-items/:id", (req, res) => {
+  const item = erp.getItem(req.params.id);
+  if (!item) return res.status(404).send("Item not found.");
+  res.render("erp-item", {
+    title: item.name,
+    page: "erp",
+    item,
+    summary: erp.summaryOf(item),
+    customFields: erp.customFieldsOf(item.raw),
+    locations: erp.locationsOf(item.raw),
+    extra: erp.extraFields(item.raw),
+    raw: JSON.stringify(item.raw, null, 2),
+  });
+});
+
+router.get("/erp-items", (req, res) => {
+  const result = erp.search(booksQuery(req));
+  const { page: current, ...rest } = result;
+  res.render("erp", {
+    title: "ERP Items",
+    ready: result.ready,
+    info: erpInfo(),
+    counts: erp.counts() || { total: 0, active: 0, inactive: 0 },
+    money: (value) => erp.formatValue("rate", value),
+    ...rest,
+    current,
+    page: "erp",
   });
 });
 

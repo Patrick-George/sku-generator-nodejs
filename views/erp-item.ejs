@@ -1,0 +1,72 @@
+<%- include('partials/head') %>
+<p class="page-sub" style="text-align:left;margin-bottom:8px"><a href="/erp-items">ERP Items</a></p>
+<h1 class="page-title" style="text-align:left"><%= item.name %></h1>
+<p class="page-sub" style="text-align:left">Zoho ERP item <%= item.item_id %><% if (item.status === 'inactive') { %> · Inactive<% } %></p>
+<div class="tools">
+  <% if (item.sku) { %>
+    <button type="button" class="copy-card sku-card" data-copy="<%= item.sku %>" style="width:auto"><span class="text"><%= item.sku %></span><small>Copy SKU</small></button>
+  <% } %>
+  <% if (item.part_number) { %>
+    <button type="button" class="copy-card code-card" data-copy="<%= item.part_number %>" style="width:auto"><span class="text"><%= item.part_number %></span><small>Copy part #</small></button>
+  <% } %>
+</div>
+<div class="layout">
+  <section class="panel">
+    <h2 class="subhead">Item</h2>
+    <% summary.forEach((field) => { %>
+      <div class="breakdown-row">
+        <span style="min-width:180px;color:var(--label)"><%= field.label %></span>
+        <span><%= field.value %></span>
+      </div>
+    <% }) %>
+    <% if (item.description) { %>
+      <h2 class="subhead">Sales description</h2>
+      <div class="copy-card desc-card"><span class="text"><%= item.description %></span></div>
+    <% } %>
+    <% if (item.purchase_description) { %>
+      <h2 class="subhead">Purchase description</h2>
+      <div class="copy-card desc-card"><span class="text"><%= item.purchase_description %></span></div>
+    <% } %>
+  </section>
+  <section class="panel">
+    <% if (customFields.length) { %>
+      <h2 class="subhead">Custom fields</h2>
+      <% customFields.forEach((field) => { %>
+        <div class="breakdown-row">
+          <span style="min-width:180px;color:var(--label)"><%= field.label %></span>
+          <span><%= field.value %></span>
+        </div>
+      <% }) %>
+    <% } %>
+    <% if (locations.length) { %>
+      <h2 class="subhead">Stock by location</h2>
+      <table>
+        <thead><tr><th>Location</th><th>On hand</th><th>Available</th><th>Committed</th></tr></thead>
+        <tbody>
+          <% locations.forEach((location) => { %>
+            <tr>
+              <td><%= location.name %></td>
+              <td><%= location.stock %></td>
+              <td><%= location.available %></td>
+              <td><%= location.committed %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+    <% if (extra.length) { %>
+      <h2 class="subhead">More fields</h2>
+      <% extra.forEach((field) => { %>
+        <div class="breakdown-row">
+          <span style="min-width:180px;color:var(--label)"><%= field.label %></span>
+          <span><%= field.value %></span>
+        </div>
+      <% }) %>
+    <% } %>
+    <details class="pair" style="margin-top:16px">
+      <summary><span class="pair-title">Full backup record</span></summary>
+      <pre class="raw-json"><%= raw %></pre>
+    </details>
+  </section>
+</div>
+<%- include('partials/foot') %>

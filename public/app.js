@@ -64,14 +64,15 @@ document.querySelectorAll("[data-add-row]").forEach((btn) => {
   });
 });
 
-const booksForm = document.querySelector("#books-search");
-if (booksForm) {
-  const input = document.querySelector("#books-q");
-  const status = document.querySelector("#books-status");
-  const suggest = document.querySelector("#books-suggest");
-  const tbody = document.querySelector("#books-rows");
-  const count = document.querySelector("#books-count");
-  const pager = document.querySelector("#books-pager");
+document.querySelectorAll("[data-catalog]").forEach((catalogForm) => {
+  const base = catalogForm.dataset.catalog;
+  const prefix = catalogForm.dataset.prefix;
+  const input = document.querySelector(`#${prefix}-q`);
+  const status = document.querySelector(`#${prefix}-status`);
+  const suggest = document.querySelector(`#${prefix}-suggest`);
+  const tbody = document.querySelector(`#${prefix}-rows`);
+  const count = document.querySelector(`#${prefix}-count`);
+  const pager = document.querySelector(`#${prefix}-pager`);
   let timer = 0;
   let active = -1;
 
@@ -93,7 +94,7 @@ if (booksForm) {
       const tr = document.createElement("tr");
       const name = document.createElement("td");
       const link = document.createElement("a");
-      link.href = `/books-items/${encodeURIComponent(row.item_id)}`;
+      link.href = `${base}/${encodeURIComponent(row.item_id)}`;
       link.textContent = row.name;
       name.appendChild(link);
       const cells = [row.sku || "—", row.part_number || "—", moneyCell(row.rate_label), row.unit || "—", row.status || "—"];
@@ -115,7 +116,7 @@ if (booksForm) {
       params.set("page", String(payload.page - 1));
       const prev = document.createElement("a");
       prev.className = "btn";
-      prev.href = `/books-items?${params}`;
+      prev.href = `${base}?${params}`;
       prev.textContent = "Previous";
       pager.appendChild(prev);
     }
@@ -127,12 +128,12 @@ if (booksForm) {
       params.set("page", String(payload.page + 1));
       const next = document.createElement("a");
       next.className = "btn";
-      next.href = `/books-items?${params}`;
+      next.href = `${base}?${params}`;
       next.textContent = "Next";
       pager.appendChild(next);
     }
     const url = new URLSearchParams({ q: payload.q, status: payload.status, page: String(payload.page) });
-    history.replaceState(null, "", `/books-items?${url}`);
+    history.replaceState(null, "", `${base}?${url}`);
   }
 
   function renderSuggest(rows) {
@@ -152,7 +153,7 @@ if (booksForm) {
     }
     for (const row of rows) {
       const link = document.createElement("a");
-      link.href = `/books-items/${encodeURIComponent(row.item_id)}`;
+      link.href = `${base}/${encodeURIComponent(row.item_id)}`;
       const name = document.createElement("span");
       name.className = "name";
       name.textContent = row.name;
@@ -175,9 +176,9 @@ if (booksForm) {
       page: String(page || 1),
     });
     const [list, hints] = await Promise.all([
-      fetch(`/books-items/search?${params}`).then((res) => res.json()),
+      fetch(`${base}/search?${params}`).then((res) => res.json()),
       input.value.trim()
-        ? fetch(`/books-items/suggest?q=${encodeURIComponent(input.value)}&status=${encodeURIComponent(status.value)}`).then((res) => res.json())
+        ? fetch(`${base}/suggest?q=${encodeURIComponent(input.value)}&status=${encodeURIComponent(status.value)}`).then((res) => res.json())
         : Promise.resolve({ rows: [] }),
     ]);
     renderRows(list);
@@ -189,7 +190,7 @@ if (booksForm) {
     timer = setTimeout(() => refresh(1), 80);
   });
   status.addEventListener("change", () => refresh(1));
-  booksForm.addEventListener("submit", (event) => {
+  catalogForm.addEventListener("submit", (event) => {
     event.preventDefault();
     suggest.hidden = true;
     refresh(1);
@@ -213,9 +214,9 @@ if (booksForm) {
     }
   });
   document.addEventListener("click", (event) => {
-    if (!booksForm.contains(event.target)) suggest.hidden = true;
+    if (!catalogForm.contains(event.target)) suggest.hidden = true;
   });
-}
+});
 
 document.querySelectorAll("[data-remove-row]").forEach((table) => {
   table.addEventListener("click", (event) => {

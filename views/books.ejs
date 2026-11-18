@@ -4,7 +4,7 @@
 <% if (!ready) { %>
   <div class="banner err"><%= loadError || "The Books item backup is not loaded yet." %></div>
 <% } else { %>
-  <form id="books-search" method="get" action="/books-items" class="filters">
+  <form id="books-search" data-catalog="/books-items" data-prefix="books" method="get" action="/books-items" class="filters">
     <div class="suggest-wrap grow">
       <input id="books-q" name="q" value="<%= q %>" placeholder="Search name, SKU, part number, or description" autocomplete="off" autofocus>
       <div id="books-suggest" class="suggest" hidden></div>
@@ -16,7 +16,7 @@
     </select>
     <button type="submit">Search</button>
   </form>
-  <p class="muted" id="books-count">Showing <%= rows.length ? ((page - 1) * pageSize + 1) + '–' + ((page - 1) * pageSize + rows.length) : '0' %> of <%= total %><% if (q) { %> for “<%= q %>”<% } %></p>
+  <p class="muted" id="books-count">Showing <%= rows.length ? ((current - 1) * pageSize + 1) + '–' + ((current - 1) * pageSize + rows.length) : '0' %> of <%= total %><% if (q) { %> for “<%= q %>”<% } %></p>
   <div class="books-table-wrap">
     <table class="books-table">
       <thead>
@@ -47,12 +47,12 @@
     </table>
   </div>
   <div class="tools" id="books-pager" style="margin-top:14px">
-    <% if (page > 1) { %>
-      <a class="btn" href="/books-items?q=<%= encodeURIComponent(q) %>&status=<%= status %>&page=<%= page - 1 %>">Previous</a>
+    <% if (current > 1) { %>
+      <a class="btn" href="/books-items?q=<%= encodeURIComponent(q) %>&status=<%= status %>&page=<%= current - 1 %>">Previous</a>
     <% } %>
-    <span class="muted">Page <%= page %> of <%= pages %></span>
-    <% if (page < pages) { %>
-      <a class="btn" href="/books-items?q=<%= encodeURIComponent(q) %>&status=<%= status %>&page=<%= page + 1 %>">Next</a>
+    <span class="muted">Page <%= current %> of <%= pages %></span>
+    <% if (current < pages) { %>
+      <a class="btn" href="/books-items?q=<%= encodeURIComponent(q) %>&status=<%= status %>&page=<%= current + 1 %>">Next</a>
     <% } %>
   </div>
 <% } %>
