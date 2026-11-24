@@ -5,6 +5,7 @@ const storage = require("../lib/storage");
 const sku = require("../lib/sku");
 const books = require("../lib/books");
 const erp = require("../lib/erp");
+const tally = require("../lib/tally");
 const { historyWorkbook } = require("../lib/excel");
 
 const router = express.Router();
@@ -285,6 +286,73 @@ router.get("/erp-items", (req, res) => {
     ...rest,
     current,
     page: "erp",
+  });
+});
+
+function tallyInfo() {
+  const info = tally.meta() || {};
+  return {
+    organization: info.organization || "Blastline India Pvt Ltd",
+    takenAt: catalogTakenAt(info, "24 Nov 2026"),
+  };
+}
+
+function tallyLabels(summary) {
+  const labels = { purchase_rate: "Opening rate", product_type: "Category", group_name: "Stock group", stock_on_hand: "Opening qty" };
+  return summary.map((field) => ({ ...field, label: labels[field.key] || field.label }));
+}
+
+router.get("/tally-items/suggest", (req, res) => {
+  const status = req.query.status || "all";
+  const q = req.query.q || "";
+  if (!String(q).trim()) return res.json({ rows: [] });
+  const rows = tally.suggest(q, status).map((row) => ({
+    item_id: row.item_id,
+    name: row.name,
+    sku: row.sku,
+    part_number: row.part_number,
+    rate: tally.formatValue("purchase_rate", row.purchase_rate),
+    status: row.status,
+  }));
+  res.json({ rows });
+});
+
+router.get("/tally-items/search", (req, res) => {
+  const result = tally.search(booksQuery(req));
+  res.json({
+    ...result,
+    rows: result.rows.map((row) => ({
+      ...row,
+      rate_label: tally.formatValue("purchase_rate", row.purchase_rate),
+    })),
+  });
+});
+
+router.get("/tally-items/:id", (req, res) => {
+  const item = tally.getItem(req.params.id);
+  if (!item) return res.status(404).send("Item not found.");
+  res.render("tally-item", {
+    title: item.name,
+    page: "tally",
+    item,
+    summary: tallyLabels(tally.summaryOf(item)),
+    extra: tally.extraFields(item.raw).filter((field) => !["guid", "parent", "category", "base_units", "mailing_name", "aliases", "hsn", "gst_taxability", "igst_rate", "opening_balance", "opening_rate", "updated", "is_deleted"].includes(field.key)),
+    raw: JSON.stringify(item.raw, null, 2),
+  });
+});
+
+router.get("/tally-items", (req, res) => {
+  const result = tally.search(booksQuery(req));
+  const { page: current, ...rest } = result;
+  res.render("tally", {
+    title: "Tally Items",
+    ready: result.ready,
+    info: tallyInfo(),
+    counts: tally.counts() || { total: 0, active: 0, inactive: 0 },
+    money: (value) => tally.formatValue("purchase_rate", value),
+    ...rest,
+    current,
+    page: "tally",
   });
 });
 

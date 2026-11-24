@@ -81,12 +81,20 @@ document.querySelectorAll("[data-catalog]").forEach((catalogForm) => {
     return label || "—";
   }
 
+  const columns = (catalogForm.dataset.columns || "sku,part_number,rate,unit,status").split(",");
+
+  function cellText(row, key) {
+    if (key === "rate") return moneyCell(row.rate_label);
+    if (key === "status") return row.status || "—";
+    return row[key] || "—";
+  }
+
   function renderRows(payload) {
     tbody.replaceChildren();
     if (!payload.rows.length) {
       const tr = document.createElement("tr");
       const td = document.createElement("td");
-      td.colSpan = 6;
+      td.colSpan = columns.length + 1;
       td.textContent = "No items match this search.";
       tr.appendChild(td);
       tbody.appendChild(tr);
@@ -98,12 +106,11 @@ document.querySelectorAll("[data-catalog]").forEach((catalogForm) => {
       link.href = `${base}/${encodeURIComponent(row.item_id)}`;
       link.textContent = row.name;
       name.appendChild(link);
-      const cells = [row.sku || "—", row.part_number || "—", moneyCell(row.rate_label), row.unit || "—", row.status || "—"];
       tr.appendChild(name);
-      cells.forEach((text, index) => {
+      columns.forEach((key) => {
         const td = document.createElement("td");
-        td.textContent = text;
-        if (index === 4 && row.status === "inactive") td.className = "muted";
+        td.textContent = cellText(row, key);
+        if (key === "status" && row.status === "inactive") td.className = "muted";
         tr.appendChild(td);
       });
       tbody.appendChild(tr);

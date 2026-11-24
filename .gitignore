@@ -1,3 +1,4 @@
 node_modules
 .env
 data/*.tmp
+data/tally_items.sqlite

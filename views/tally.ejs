@@ -1,0 +1,59 @@
+<%- include('partials/head') %>
+<h1 class="page-title">Tally Items</h1>
+<p class="page-sub">Tally stock items for <%= info.organization %>. Taken <%= info.takenAt %>. This is a copy of the stock item master.</p>
+<% if (!ready) { %>
+  <div class="banner err"><%= loadError || "The Tally items are not loaded yet." %></div>
+<% } else { %>
+  <form id="tally-search" data-catalog="/tally-items" data-prefix="tally" data-columns="part_number,group_name,rate,unit,status" method="get" action="/tally-items" class="filters">
+    <div class="suggest-wrap grow">
+      <input id="tally-q" name="q" value="<%= q %>" placeholder="Search name, part number, group, HSN, or category" autocomplete="off" autofocus>
+      <div id="tally-suggest" class="suggest" hidden></div>
+    </div>
+    <select name="status" id="tally-status">
+      <option value="all" <%= status === 'all' ? 'selected' : '' %>>All (<%= counts.total %>)</option>
+      <option value="active" <%= status === 'active' ? 'selected' : '' %>>Active (<%= counts.active %>)</option>
+      <option value="inactive" <%= status === 'inactive' ? 'selected' : '' %>>Inactive (<%= counts.inactive %>)</option>
+    </select>
+    <button type="submit">Search</button>
+  </form>
+  <p class="muted" id="tally-count">Showing <%= rows.length ? ((current - 1) * pageSize + 1) + '–' + ((current - 1) * pageSize + rows.length) : '0' %> of <%= total %><% if (q) { %> for “<%= q %>”<% } %></p>
+  <div class="books-table-wrap">
+    <table class="books-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Part #</th>
+          <th>Group</th>
+          <th>Opening rate</th>
+          <th>Unit</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tally-rows">
+        <% if (!rows.length) { %>
+          <tr><td colspan="6">No items match this search.</td></tr>
+        <% } %>
+        <% rows.forEach((row) => { %>
+          <tr>
+            <td><a href="/tally-items/<%= row.item_id %>"><%= row.name %></a></td>
+            <td><%= row.part_number || "—" %></td>
+            <td><%= row.group_name || "—" %></td>
+            <td><%= money(row.purchase_rate) %></td>
+            <td><%= row.unit || "—" %></td>
+            <td class="<%= row.status === 'inactive' ? 'muted' : '' %>"><%= row.status || "—" %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <div class="tools" id="tally-pager" style="margin-top:14px">
+    <% if (current > 1) { %>
+      <a class="btn" href="/tally-items?q=<%= encodeURIComponent(q) %>&status=<%= status %>&page=<%= current - 1 %>">Previous</a>
+    <% } %>
+    <span class="muted">Page <%= current %> of <%= pages %></span>
+    <% if (current < pages) { %>
+      <a class="btn" href="/tally-items?q=<%= encodeURIComponent(q) %>&status=<%= status %>&page=<%= current + 1 %>">Next</a>
+    <% } %>
+  </div>
+<% } %>
+<%- include('partials/foot') %>

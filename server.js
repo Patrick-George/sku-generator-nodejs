@@ -57,6 +57,7 @@ app.use("/admin", admin);
 
 const books = require("./lib/books");
 const erp = require("./lib/erp");
+const tally = require("./lib/tally");
 
 app.use((err, req, res, next) => {
   console.error(err);
@@ -69,6 +70,9 @@ Promise.all([
   }),
   erp.prepare().catch((err) => {
     console.error("ERP items did not load.", err);
+  }),
+  tally.prepare().catch((err) => {
+    console.error("Tally items did not load.", err);
   }),
 ]).finally(() => {
   app.listen(port, () => {
