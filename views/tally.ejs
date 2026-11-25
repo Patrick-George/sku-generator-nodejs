@@ -4,9 +4,9 @@
 <% if (!ready) { %>
   <div class="banner err"><%= loadError || "The Tally items are not loaded yet." %></div>
 <% } else { %>
-  <form id="tally-search" data-catalog="/tally-items" data-prefix="tally" data-columns="part_number,group_name,rate,unit,status" method="get" action="/tally-items" class="filters">
+  <form id="tally-search" data-catalog="/tally-items" data-prefix="tally" data-columns="sku,part_number,group_name,rate,unit,status" method="get" action="/tally-items" class="filters">
     <div class="suggest-wrap grow">
-      <input id="tally-q" name="q" value="<%= q %>" placeholder="Search name, part number, group, HSN, or category" autocomplete="off" autofocus>
+      <input id="tally-q" name="q" value="<%= q %>" placeholder="Search name, SKU, part number, group, HSN, or category" autocomplete="off" autofocus>
       <div id="tally-suggest" class="suggest" hidden></div>
     </div>
     <select name="status" id="tally-status">
@@ -22,23 +22,25 @@
       <thead>
         <tr>
           <th>Name</th>
+          <th>SKU</th>
           <th>Part #</th>
           <th>Group</th>
-          <th>Opening rate</th>
+          <th>Selling price</th>
           <th>Unit</th>
           <th>Status</th>
         </tr>
       </thead>
       <tbody id="tally-rows">
         <% if (!rows.length) { %>
-          <tr><td colspan="6">No items match this search.</td></tr>
+          <tr><td colspan="7">No items match this search.</td></tr>
         <% } %>
         <% rows.forEach((row) => { %>
           <tr>
             <td><a href="/tally-items/<%= row.item_id %>"><%= row.name %></a></td>
+            <td><%= row.sku || "—" %></td>
             <td><%= row.part_number || "—" %></td>
             <td><%= row.group_name || "—" %></td>
-            <td><%= money(row.purchase_rate) %></td>
+            <td><%= money(row.rate) %></td>
             <td><%= row.unit || "—" %></td>
             <td class="<%= row.status === 'inactive' ? 'muted' : '' %>"><%= row.status || "—" %></td>
           </tr>

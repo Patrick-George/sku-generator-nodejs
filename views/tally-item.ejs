@@ -3,6 +3,9 @@
 <h1 class="page-title" style="text-align:left"><%= item.name %></h1>
 <p class="page-sub" style="text-align:left">Tally stock item<% if (item.status === 'inactive') { %> · Inactive<% } %></p>
 <div class="tools">
+  <% if (item.sku) { %>
+    <button type="button" class="copy-card sku-card" data-copy="<%= item.sku %>" style="width:auto"><span class="text"><%= item.sku %></span><small>Copy SKU</small></button>
+  <% } %>
   <% if (item.part_number) { %>
     <button type="button" class="copy-card code-card" data-copy="<%= item.part_number %>" style="width:auto"><span class="text"><%= item.part_number %></span><small>Copy part #</small></button>
   <% } %>

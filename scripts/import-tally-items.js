@@ -29,6 +29,21 @@ function tag(block, name) {
   return match ? decode(match[1]) : "";
 }
 
+function udfs(block, name) {
+  const found = [];
+  const pattern = new RegExp(`<UDF:${name}[^>]*>([^<]*)</UDF:${name}>`, "g");
+  let match;
+  while ((match = pattern.exec(block))) {
+    const value = decode(match[1]);
+    if (value) found.push(value);
+  }
+  return found;
+}
+
+function joined(values) {
+  return values.filter(Boolean).join(", ");
+}
+
 function tags(block, name) {
   const found = [];
   const pattern = new RegExp(`<${name}>([^<]*)</${name}>`, "g");
@@ -46,6 +61,22 @@ function lastIgst(block) {
   let match;
   while ((match = pattern.exec(block))) rate = decode(match[1]);
   return rate;
+}
+
+function latestRate(block, listName) {
+  const escaped = listName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`<${escaped}>([\\s\\S]*?)</${escaped}>`, "g");
+  let bestDate = "";
+  let bestRate = null;
+  let match;
+  while ((match = pattern.exec(block))) {
+    const date = tag(match[1], "DATE");
+    const rate = leadingNumber(tag(match[1], "RATE"));
+    if (rate == null || date < bestDate) continue;
+    bestDate = date;
+    bestRate = rate;
+  }
+  return bestRate;
 }
 
 function leadingNumber(value) {
@@ -70,11 +101,15 @@ function itemFrom(block) {
   const name = attributeName(block) || tag(block, "NAME");
   if (!name) return null;
   const mailing = tags(block, "MAILINGNAME").find((value) => value.toLowerCase() !== name.toLowerCase()) || "";
+  const sku = joined(udfs(block, "IIS_STK_SKU"));
+  const supplier = joined(udfs(block, "IIS_STK_SUPP"));
+  const country = joined(udfs(block, "IIS_STK_COO"));
+  const altCode = joined(udfs(block, "IIS_STK_ALTCODE"));
+  const oldCode = joined(udfs(block, "IIS_STK_OLDCODE"));
   const aliases = tags(block, "NAME").filter((value) => value.toLowerCase() !== name.toLowerCase());
   const hsn = tags(block, "HSNCODE").at(-1) || "";
   const taxability = tags(block, "TAXABILITY").at(-1) || "";
   const igst = lastIgst(block);
-  const openingRate = leadingNumber(tag(block, "OPENINGRATE"));
   const openingQty = leadingNumber(tag(block, "OPENINGBALANCE"));
   const deleted = tag(block, "ISDELETED").toLowerCase() === "yes";
   const guid = tag(block, "GUID");
@@ -84,6 +119,12 @@ function itemFrom(block) {
     category: tag(block, "CATEGORY"),
     base_units: tag(block, "BASEUNITS"),
     mailing_name: mailing,
+    sku,
+    supplier,
+    coo: country,
+    gst_supply: tag(block, "GSTTYPEOFSUPPLY"),
+    alt_code: altCode,
+    old_code: oldCode,
     aliases,
     hsn,
     gst_taxability: taxability,
@@ -99,13 +140,13 @@ function itemFrom(block) {
   return {
     item_id: guid || name,
     name,
-    sku: "",
+    sku,
     part_number: mailing,
     group_name: raw.parent,
     status: deleted ? "inactive" : "active",
     unit: raw.base_units,
-    rate: null,
-    purchase_rate: openingRate,
+    rate: latestRate(block, "STANDARDPRICELIST.LIST"),
+    purchase_rate: latestRate(block, "STANDARDCOSTLIST.LIST"),
     description: aliases.join("\n"),
     purchase_description: "",
     hsn_or_sac: hsn,

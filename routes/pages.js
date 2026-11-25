@@ -298,7 +298,7 @@ function tallyInfo() {
 }
 
 function tallyLabels(summary) {
-  const labels = { purchase_rate: "Opening rate", product_type: "Category", group_name: "Stock group", stock_on_hand: "Opening qty" };
+  const labels = { purchase_rate: "Cost price", product_type: "Category", group_name: "Stock group", stock_on_hand: "Opening qty" };
   return summary.map((field) => ({ ...field, label: labels[field.key] || field.label }));
 }
 
@@ -311,7 +311,7 @@ router.get("/tally-items/suggest", (req, res) => {
     name: row.name,
     sku: row.sku,
     part_number: row.part_number,
-    rate: tally.formatValue("purchase_rate", row.purchase_rate),
+    rate: tally.formatValue("rate", row.rate),
     status: row.status,
   }));
   res.json({ rows });
@@ -323,7 +323,7 @@ router.get("/tally-items/search", (req, res) => {
     ...result,
     rows: result.rows.map((row) => ({
       ...row,
-      rate_label: tally.formatValue("purchase_rate", row.purchase_rate),
+      rate_label: tally.formatValue("rate", row.rate),
     })),
   });
 });
@@ -331,12 +331,14 @@ router.get("/tally-items/search", (req, res) => {
 router.get("/tally-items/:id", (req, res) => {
   const item = tally.getItem(req.params.id);
   if (!item) return res.status(404).send("Item not found.");
+  item.coo = item.raw.coo || "";
+  item.gst_supply = item.raw.gst_supply || "";
   res.render("tally-item", {
     title: item.name,
     page: "tally",
     item,
     summary: tallyLabels(tally.summaryOf(item)),
-    extra: tally.extraFields(item.raw).filter((field) => !["guid", "parent", "category", "base_units", "mailing_name", "aliases", "hsn", "gst_taxability", "igst_rate", "opening_balance", "opening_rate", "updated", "is_deleted"].includes(field.key)),
+    extra: tally.extraFields(item.raw).filter((field) => !["guid", "parent", "category", "base_units", "mailing_name", "aliases", "hsn", "gst_taxability", "igst_rate", "opening_balance", "updated", "is_deleted", "sku", "coo", "gst_supply"].includes(field.key)),
     raw: JSON.stringify(item.raw, null, 2),
   });
 });
@@ -349,7 +351,7 @@ router.get("/tally-items", (req, res) => {
     ready: result.ready,
     info: tallyInfo(),
     counts: tally.counts() || { total: 0, active: 0, inactive: 0 },
-    money: (value) => tally.formatValue("purchase_rate", value),
+    money: (value) => tally.formatValue("rate", value),
     ...rest,
     current,
     page: "tally",
