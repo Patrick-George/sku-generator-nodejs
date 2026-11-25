@@ -6,6 +6,7 @@ const sku = require("../lib/sku");
 const books = require("../lib/books");
 const erp = require("../lib/erp");
 const tally = require("../lib/tally");
+const compare = require("../lib/compare");
 const { historyWorkbook } = require("../lib/excel");
 
 const router = express.Router();
@@ -355,6 +356,40 @@ router.get("/tally-items", (req, res) => {
     ...rest,
     current,
     page: "tally",
+  });
+});
+
+function compareHref(current, patch) {
+  const next = { ...current, ...patch };
+  const params = new URLSearchParams();
+  if (next.kind && next.kind !== "problems") params.set("kind", next.kind);
+  if (next.field && next.field !== "all") params.set("field", next.field);
+  if (next.q) params.set("q", next.q);
+  if (next.page && Number(next.page) > 1) params.set("page", String(next.page));
+  const query = params.toString();
+  return query ? `/compare?${query}` : "/compare";
+}
+
+router.get("/compare", (req, res) => {
+  const erpRows = erp.all();
+  const tallyRows = tally.all();
+  const ready = erpRows.ready && tallyRows.ready;
+  const current = {
+    kind: req.query.kind || "problems",
+    field: req.query.field || "all",
+    q: req.query.q || "",
+    page: req.query.page || 1,
+  };
+  const result = ready ? compare.report(erpRows.rows, tallyRows.rows, current) : null;
+  const view = result || { counts: {}, fields: compare.FIELDS, kind: "problems", field: "all", q: current.q, rows: [], total: 0, page: 1, pages: 1 };
+  res.render("compare", {
+    title: "Compare",
+    ready,
+    loadError: [erpRows.loadError, tallyRows.loadError].filter(Boolean).join(" "),
+    ...view,
+    current: view.page,
+    page: "compare",
+    href: (patch) => compareHref({ kind: view.kind, field: view.field, q: view.q }, patch),
   });
 });
 

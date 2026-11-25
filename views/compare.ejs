@@ -1,0 +1,70 @@
+<%- include('partials/head') %>
+<h1 class="page-title">Compare</h1>
+<p class="page-sub">ERP items against the Tally stock master, joined on the Tally id stored in ERP. Prices and other blanks on only one side stay out of the default list.</p>
+<% if (!ready) { %>
+  <div class="banner err"><%= loadError || "The ERP or Tally items are not loaded yet." %></div>
+<% } else { %>
+  <div class="tabs">
+    <a class="btn <%= kind === 'problems' ? 'primary' : '' %>" href="<%= href({ kind: 'problems', page: 1 }) %>">Problems (<%= counts.problems %>)</a>
+    <a class="btn <%= kind === 'missing-tally' ? 'primary' : '' %>" href="<%= href({ kind: 'missing-tally', page: 1 }) %>">Missing in Tally (<%= counts.missingTally %>)</a>
+    <a class="btn <%= kind === 'missing-erp' ? 'primary' : '' %>" href="<%= href({ kind: 'missing-erp', page: 1 }) %>">Missing in ERP (<%= counts.missingErp %>)</a>
+    <a class="btn <%= kind === 'mismatch' ? 'primary' : '' %>" href="<%= href({ kind: 'mismatch', page: 1 }) %>">Field mismatches (<%= counts.mismatches %>)</a>
+    <a class="btn <%= kind === 'blank' ? 'primary' : '' %>" href="<%= href({ kind: 'blank', page: 1 }) %>">One side blank (<%= counts.blanks %>)</a>
+    <a class="btn <%= kind === 'matched' ? 'primary' : '' %>" href="<%= href({ kind: 'matched', page: 1 }) %>">Matched (<%= counts.matched %>)</a>
+  </div>
+  <form method="get" action="/compare" class="filters">
+    <input type="hidden" name="kind" value="<%= kind %>">
+    <input class="grow" name="q" value="<%= q %>" placeholder="Search name or SKU">
+    <select name="field">
+      <option value="all" <%= field === 'all' ? 'selected' : '' %>>All fields</option>
+      <% fields.forEach((item) => { %>
+        <option value="<%= item.key %>" <%= field === item.key ? 'selected' : '' %>><%= item.label %></option>
+      <% }) %>
+    </select>
+    <button type="submit">Search</button>
+  </form>
+  <p class="muted">Showing <%= rows.length ? ((current - 1) * pageSize + 1) + '–' + ((current - 1) * pageSize + rows.length) : '0' %> of <%= total %><% if (q) { %> for “<%= q %>”<% } %></p>
+  <div class="books-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>SKU</th>
+          <th>ERP</th>
+          <th>Tally</th>
+          <th>Difference</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!rows.length) { %>
+          <tr><td colspan="4">Nothing in this view.</td></tr>
+        <% } %>
+        <% rows.forEach((row) => { %>
+          <tr>
+            <td><%= row.sku || "—" %></td>
+            <td><% if (row.erp) { %><a href="/erp-items/<%= row.erp.id %>"><%= row.erp.name %></a><% } else { %>—<% } %></td>
+            <td><% if (row.tally) { %><a href="/tally-items/<%= row.tally.id %>"><%= row.tally.name %></a><% } else { %>—<% } %></td>
+            <td>
+              <% row.shown.forEach((item) => { %>
+                <% if (item.note) { %>
+                  <div><%= item.note %></div>
+                <% } else { %>
+                  <div><strong><%= item.label %></strong> · ERP <%= item.erp || "—" %> · Tally <%= item.tally || "—" %></div>
+                <% } %>
+              <% }) %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <div class="tools" style="margin-top:14px">
+    <% if (current > 1) { %>
+      <a class="btn" href="<%= href({ page: current - 1 }) %>">Previous</a>
+    <% } %>
+    <span class="muted">Page <%= current %> of <%= pages %></span>
+    <% if (current < pages) { %>
+      <a class="btn" href="<%= href({ page: current + 1 }) %>">Next</a>
+    <% } %>
+  </div>
+<% } %>
+<%- include('partials/foot') %>
